@@ -48,6 +48,12 @@ describe("ToonSurvival", () => {
         })).to.be.revertedWith('Invalid mint amount!');
     });
 
+    it('should return empty walletOfOwner with no minted token', async () => {
+        const ids = await toonSurvival.walletOfOwner(addr1.getAddress());
+
+        expect(ids.length).to.equal(0);
+    });
+
     it('should mint failed when over max supply', async () => {
         await toonSurvival.setStage(stages.PublicSale);
         await toonSurvival.setMaxMintAmount(100);
@@ -86,11 +92,13 @@ describe("ToonSurvival", () => {
     });
 
     it('should be able mintForAddress even the contract is Paused', async () => {
-        await toonSurvival.mintForAddress(1, await addr2.getAddress());
+        await toonSurvival.mintForAddress(1, addr2.getAddress());
 
         const supply = await toonSurvival.totalSupply();
+        const walletOfOwner = await toonSurvival.walletOfOwner(addr2.getAddress());
 
         expect(supply.toNumber()).to.equal(1);
+        expect(walletOfOwner.length).to.equal(1);
     });
 
     it('should mint failed when on Presale stage and the user doese not in whitelisted', async () => {
@@ -101,17 +109,19 @@ describe("ToonSurvival", () => {
     });
 
     it('should have token when mint on Presale and the user is in whitelisted', async () => {
-        await toonSurvival.addToWhitelist([await addr2.getAddress()]);
+        await toonSurvival.addToWhitelist([addr2.getAddress()]);
         await toonSurvival.setStage(stages.Presale);
         await toonSurvival.connect(addr2).mint(1, {
             value: web3.utils.toWei('0.1', 'ether')
         });
 
         const supply = await toonSurvival.totalSupply();
-        const isWhitelist = await toonSurvival.isWhitelist(await addr2.getAddress());
+        const isWhitelist = await toonSurvival.isWhitelist(addr2.getAddress());
+        const walletOfOwner = await toonSurvival.walletOfOwner(addr2.getAddress());
 
         expect(isWhitelist).to.equal(true);
         expect(supply.toNumber()).to.equal(1);
+        expect(walletOfOwner.length).to.equal(1);
     });
 
     it('should have token when mint on public sale success', async () => {
@@ -121,10 +131,12 @@ describe("ToonSurvival", () => {
         });
 
         const supply = await toonSurvival.totalSupply();
-        const isWhitelist = await toonSurvival.isWhitelist(await addr3.getAddress());
+        const isWhitelist = await toonSurvival.isWhitelist(addr3.getAddress());
+        const walletOfOwner = await toonSurvival.walletOfOwner(addr3.getAddress());
 
         expect(isWhitelist).to.equal(false);
         expect(supply.toNumber()).to.equal(2);
+        expect(walletOfOwner.length).to.equal(2);
     });
 
     it('should get hiddenBaseURI with token id when get tokenURI and revealed is false', async () => {

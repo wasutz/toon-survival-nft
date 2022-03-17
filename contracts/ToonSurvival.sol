@@ -67,6 +67,27 @@ contract ToonSurvival is ERC721A, Ownable {
         : "";
   }
 
+  function walletOfOwner(address _owner) public view returns (uint256[] memory) {
+    uint256 ownerTokenCount = balanceOf(_owner);
+    uint256[] memory ownedTokenIds = new uint256[](ownerTokenCount);
+    uint256 currentTokenId = _startTokenId();
+    uint256 ownedTokenIndex = 0;
+
+    while (ownedTokenIndex < ownerTokenCount && currentTokenId <= maxSupply) {
+      TokenOwnership memory ownership = _ownerships[currentTokenId];
+
+      if (!ownership.burned && ownership.addr == _owner) {
+        ownedTokenIds[ownedTokenIndex] = currentTokenId;
+
+        ownedTokenIndex++;
+      }
+
+      currentTokenId++;
+    }
+
+    return ownedTokenIds;
+  }
+
   function setBaseURI(string memory _newBaseURI) public onlyOwner {
     baseURI = _newBaseURI;
   }
