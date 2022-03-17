@@ -113,4 +113,8 @@ contract ToonSurvival is ERC721A, Ownable {
   function _baseURI() internal view virtual override returns (string memory) {
     return baseURI;
   }
+
+  function _startTokenId() internal view virtual override returns (uint256) {
+    return 1;
+  }
 }

@@ -15,6 +15,7 @@
     "erc721a": "^3.0.0"
   },
   "scripts":{
+    "test": "npx hardhat test",
     "deploy:rinkeby": "npx hardhat run --network rinkeby scripts/deploy.js",
     "verify:rinkeby": "npx hardhat verify --network rinkeby --constructor-args ./config/ContractArguments.js $ADDRESS"
   }

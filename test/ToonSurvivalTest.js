@@ -129,7 +129,7 @@ describe("ToonSurvival", () => {
 
     it('should get hiddenBaseURI with token id when get tokenURI and revealed is false', async () => {
         await toonSurvival.setStage(stages.PublicSale);
-        await toonSurvival.connect(addr1).mint(2, {
+        await toonSurvival.connect(addr1).mint(1, {
             value: web3.utils.toWei('0.2', 'ether')
         });
 
@@ -141,7 +141,7 @@ describe("ToonSurvival", () => {
     it('should get baseUri with token id when get tokenURI and revealed is true', async () => {
         await toonSurvival.setStage(stages.PublicSale);
         await toonSurvival.setRevealed(true);
-        await toonSurvival.connect(addr1).mint(2, {
+        await toonSurvival.connect(addr1).mint(1, {
             value: web3.utils.toWei('0.2', 'ether')
         });
 
