@@ -3,6 +3,7 @@ pragma solidity >=0.7.0 <0.9.0;
 
 import "erc721a/contracts/ERC721A.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import '@openzeppelin/contracts/utils/cryptography/MerkleProof.sol';
 
 contract ToonSurvival is ERC721A, Ownable {
   using Strings for uint256;
@@ -22,7 +23,8 @@ contract ToonSurvival is ERC721A, Ownable {
   bool public revealed = false;
   Stages public stage = Stages.Paused;
 
-  mapping(address => bool) private whitelist;
+  bytes32 public merkleRoot;
+  mapping(address => bool) public whitelistClaimed;
 
   constructor(
     string memory _initBaseURI,
@@ -34,18 +36,26 @@ contract ToonSurvival is ERC721A, Ownable {
 
   modifier mintCompliance(uint256 _mintAmount) {
     require(_mintAmount > 0 && _mintAmount <= maxMintAmountPerTx, "Invalid mint amount!");
+    require(balanceOf(msg.sender) + _mintAmount <= maxMintAmount, "Mint over max mint amount!");
     require(totalSupply() + _mintAmount <= maxSupply, "Max supply exceeded!");
     _;
   }
 
-  function mint(uint256 _mintAmount) public payable mintCompliance(_mintAmount) {
-    require(stage != Stages.Paused, "The contract is paused!");
-    require(balanceOf(msg.sender) + _mintAmount <= maxMintAmount, "Mint over max mint amount!");
-    require(msg.value >= cost * _mintAmount, "Insufficient funds!");
+  function whitelistMint(uint256 _mintAmount, bytes32[] calldata _merkleProof) public payable mintCompliance(_mintAmount) {
+    require(stage == Stages.Presale, "The contract does not in Presale stage");
+    require(!whitelistClaimed[msg.sender], 'Address already claimed!');
+    require(msg.value >= cost * _mintAmount, 'Insufficient funds!');
 
-    if (stage == Stages.Presale) {
-      require(isWhitelist(msg.sender), "User is not whitelisted!");
-    }
+    bytes32 leaf = keccak256(abi.encodePacked(msg.sender));
+    require(MerkleProof.verify(_merkleProof, merkleRoot, leaf), 'Invalid proof!');
+    whitelistClaimed[msg.sender] = true;
+
+    _safeMint(msg.sender, _mintAmount);
+  }
+
+  function mint(uint256 _mintAmount) public payable mintCompliance(_mintAmount) {
+    require(stage == Stages.PublicSale, "The contract does not in PublicSale stage");
+    require(msg.value >= cost * _mintAmount, 'Insufficient funds!');
 
     _safeMint(msg.sender, _mintAmount);
   }
@@ -96,15 +106,15 @@ contract ToonSurvival is ERC721A, Ownable {
     hiddenBaseURI = _newHiddenBaseURI;
   }
 
-  function setCost(uint256 _cost) public onlyOwner() {
+  function setCost(uint256 _cost) public onlyOwner {
     cost = _cost;
   }
 
-  function setMaxMintAmount(uint256 _maxMintAmount) public onlyOwner() {
+  function setMaxMintAmount(uint256 _maxMintAmount) public onlyOwner {
     maxMintAmount = _maxMintAmount;
   }
 
-  function setMaxMintAmountPerTx(uint256 _maxMintAmountPerTx) public onlyOwner() {
+  function setMaxMintAmountPerTx(uint256 _maxMintAmountPerTx) public onlyOwner {
     maxMintAmountPerTx = _maxMintAmountPerTx;
   }
 
@@ -112,23 +122,17 @@ contract ToonSurvival is ERC721A, Ownable {
     stage = _stage;
   }
 
-  function isWhitelist(address _address) public view returns (bool){
-    return whitelist[_address];
-  }
-
   function setRevealed(bool _revealed) public onlyOwner {
     revealed = _revealed;
+  }
+
+  function setMerkleRoot(bytes32 _merkleRoot) public onlyOwner {
+    merkleRoot = _merkleRoot;
   }
 
   function withdraw() public payable onlyOwner {
     (bool success, ) = payable(msg.sender).call{value: address(this).balance}("");
     require(success);
-  }
-
-  function addToWhitelist(address[] calldata _addresses) external onlyOwner {
-    for (uint256 i; i < _addresses.length; i++) {
-        whitelist[_addresses[i]] = true;
-    }
   }
 
   function _baseURI() internal view virtual override returns (string memory) {
