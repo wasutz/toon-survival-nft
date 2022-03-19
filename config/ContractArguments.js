@@ -1,6 +1,13 @@
-require('dotenv').config();
+const {utils} = require('ethers');
+const CollectionConfig = require('./CollectionConfig');
 
 module.exports = [
-    process.env.BASE_URL,
-    process.env.HIDDEN_BASE_URL
+    CollectionConfig.tokenName,
+    CollectionConfig.tokenSymbol,
+    utils.parseEther(CollectionConfig.cost.toString()),
+    CollectionConfig.maxSupply,
+    CollectionConfig.maxMintAmount,
+    CollectionConfig.maxMintAmountPerTx,
+    CollectionConfig.baseURI,
+    CollectionConfig.hiddenBaseURI
 ];

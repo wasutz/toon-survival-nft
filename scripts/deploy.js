@@ -1,17 +1,17 @@
 const hre = require("hardhat");
 require('dotenv').config();
+const ContractArguments = require('../config/ContractArguments');
 
 async function main() {
-  const ToonSurvival = await hre.ethers.getContractFactory("ToonSurvival");
+  console.log('Deploying contract...');
 
-  const baseUri = process.env.BASE_URL;
-  const hiddenUri = process.env.HIDDEN_BASE_URL;
-
-  const toonSurvival = await ToonSurvival.deploy(baseUri, hiddenUri);
+  const contractName = "ToonSurvival";
+  const ToonSurvival = await hre.ethers.getContractFactory(contractName);
+  const toonSurvival = await ToonSurvival.deploy(...ContractArguments);
 
   await toonSurvival.deployed();
 
-  console.log("ToonSurvival deployed to: ", toonSurvival.address);
+  console.log(`${contractName} deployed to: ${toonSurvival.address}`);
 }
 
 main()

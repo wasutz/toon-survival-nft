@@ -16,10 +16,10 @@ contract ToonSurvival is ERC721A, Ownable {
 
   string baseURI;
   string public hiddenBaseURI;
-  uint256 public cost = 0.1 ether;
-  uint256 public maxSupply = 100;
-  uint256 public maxMintAmount = 5;
-  uint256 public maxMintAmountPerTx = 2;
+  uint256 public cost;
+  uint256 public maxSupply;
+  uint256 public maxMintAmount;
+  uint256 public maxMintAmountPerTx;
   bool public revealed = false;
   Stages public stage = Stages.Paused;
 
@@ -27,9 +27,19 @@ contract ToonSurvival is ERC721A, Ownable {
   mapping(address => bool) public whitelistClaimed;
 
   constructor(
+    string memory _tokenName,
+    string memory _tokenSymbol,
+    uint256 _cost,
+    uint256 _maxSupply,
+    uint256 _maxMintAmount,
+    uint256 _maxMintAmountPerTx,
     string memory _initBaseURI,
     string memory _initHiddenBaseURI
-  ) ERC721A("Toon Survival", "TSVR") {
+  ) ERC721A(_tokenName, _tokenSymbol) {
+    cost = _cost;
+    maxSupply = _maxSupply;
+    maxMintAmount = _maxMintAmount;
+    maxMintAmountPerTx = _maxMintAmountPerTx;
     baseURI = _initBaseURI;
     hiddenBaseURI = _initHiddenBaseURI;
   }
