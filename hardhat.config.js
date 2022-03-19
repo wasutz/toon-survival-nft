@@ -31,6 +31,18 @@ task('generate-root-hash', 'Generates root hash for the current whitelist', asyn
   console.log('The Merkle Tree root hash is: ' + rootHash);
 });
 
+task('generate-proof', 'Generates the whitelist proof for the given address', async (taskArgs) => {
+  if (CollectionConfig.whitelistAddresses.length < 1) {
+    throw 'The whitelist is empty, please add some addresses to the configuration.';
+  }
+
+  const leafNodes = CollectionConfig.whitelistAddresses.map(addr => keccak256(addr));
+  const merkleTree = new MerkleTree(leafNodes, keccak256, {sortPairs: true});
+  const proof = merkleTree.getHexProof(keccak256(taskArgs.address)).toString();
+
+  console.log('The whitelist proof is: ' + proof);
+}).addPositionalParam('address', 'The given address');
+
 module.exports = {
   solidity: {
     version: '0.8.9',

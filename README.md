@@ -1,6 +1,5 @@
 ## Toon Survival NFT
 100 Toon Survival Unique NFT
-Just for testing ERC721a
 
 ## Features
 - High gas efficiency using ERC721a
@@ -9,4 +8,4 @@ Just for testing ERC721a
 - Reveal or hide metadata URI
 
 ## Contracts
-Rinkeby:
+Rinkeby: [0xe763074daa5a1EFdE2033422F8265009B47DA053](https://rinkeby.etherscan.io/address/0xe763074daa5a1EFdE2033422F8265009B47DA053)
