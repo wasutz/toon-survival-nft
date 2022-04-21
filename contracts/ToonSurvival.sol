@@ -4,8 +4,9 @@ pragma solidity >=0.7.0 <0.9.0;
 import "erc721a/contracts/ERC721A.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import '@openzeppelin/contracts/utils/cryptography/MerkleProof.sol';
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-contract ToonSurvival is ERC721A, Ownable {
+contract ToonSurvival is ERC721A, Ownable, ReentrancyGuard {
   using Strings for uint256;
 
   enum Stages {
@@ -140,7 +141,7 @@ contract ToonSurvival is ERC721A, Ownable {
     merkleRoot = _merkleRoot;
   }
 
-  function withdraw() public payable onlyOwner {
+  function withdraw() public payable onlyOwner nonReentrant {
     (bool success, ) = payable(msg.sender).call{value: address(this).balance}("");
     require(success);
   }

@@ -5,6 +5,9 @@ const web3 = require('web3');
 const {MerkleTree} = require('merkletreejs');
 const keccak256 = require('keccak256');
 const {expect} = chai;
+const {utils} = require('ethers');
+const {tokenName, tokenSymbol, cost, maxSupply, maxMintAmount,
+    maxMintAmountPerTx} = require('../config/CollectionConfig');
 
 chai.use(ChaiAsPromised);
 
@@ -24,7 +27,9 @@ describe("ToonSurvival", () => {
         [owner, whitelistUser, user, user2] = await ethers.getSigners();
 
         const ToonSurvivalContract = await ethers.getContractFactory("ToonSurvival");
-        toonSurvival = await ToonSurvivalContract.deploy(baseUri, hiddenBaseUri);
+        toonSurvival = await ToonSurvivalContract.deploy(tokenName, tokenSymbol,
+            utils.parseEther(cost.toString()), maxSupply, maxMintAmount, maxMintAmountPerTx,
+            baseUri, hiddenBaseUri);
         whitelistTestAddresses = [await whitelistUser.getAddress()];
 
         await toonSurvival.deployed();
