@@ -25,7 +25,8 @@ contract ToonSurvival is ERC721A, Ownable, ReentrancyGuard {
   Stages public stage = Stages.Paused;
 
   bytes32 public merkleRoot;
-  mapping(address => bool) public whitelistClaimed;
+  uint256 public maxWhitelistMintAmount = 1;
+  mapping(address => uint256) public whitelistClaimed;
 
   constructor(
     string memory _tokenName,
@@ -54,12 +55,12 @@ contract ToonSurvival is ERC721A, Ownable, ReentrancyGuard {
 
   function whitelistMint(uint256 _mintAmount, bytes32[] calldata _merkleProof) public payable mintCompliance(_mintAmount) {
     require(stage == Stages.Presale, "The contract does not in Presale stage");
-    require(!whitelistClaimed[msg.sender], 'Address already claimed!');
+    require(whitelistClaimed[msg.sender] + _mintAmount <= maxWhitelistMintAmount, 'Mint over max whitelist mint amount');
     require(msg.value >= cost * _mintAmount, 'Insufficient funds!');
 
     bytes32 leaf = keccak256(abi.encodePacked(msg.sender));
     require(MerkleProof.verify(_merkleProof, merkleRoot, leaf), 'Invalid proof!');
-    whitelistClaimed[msg.sender] = true;
+    whitelistClaimed[msg.sender] = whitelistClaimed[msg.sender] + _mintAmount;
 
     _safeMint(msg.sender, _mintAmount);
   }
@@ -139,6 +140,10 @@ contract ToonSurvival is ERC721A, Ownable, ReentrancyGuard {
 
   function setMerkleRoot(bytes32 _merkleRoot) public onlyOwner {
     merkleRoot = _merkleRoot;
+  }
+
+  function setMaxWhitelistMintAmount(uint256 _maxWhitelistMintAmount) public onlyOwner {
+    maxWhitelistMintAmount = _maxWhitelistMintAmount;
   }
 
   function withdraw() public payable onlyOwner nonReentrant {

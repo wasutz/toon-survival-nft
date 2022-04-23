@@ -136,20 +136,21 @@ describe("ToonSurvival", () => {
 
         await toonSurvival.setMerkleRoot('0x' + rootHash.toString('hex'));
         await toonSurvival.setStage(stages.Presale);
-        await toonSurvival.connect(whitelistUser).whitelistMint(1,
+        await toonSurvival.setMaxWhitelistMintAmount(2);
+        await toonSurvival.connect(whitelistUser).whitelistMint(2,
             merkleTree.getHexProof(keccak256(await whitelistUser.getAddress())),
-            {value: web3.utils.toWei('0.1', 'ether')}
+            {value: web3.utils.toWei('0.2', 'ether')}
         );
         await expect(toonSurvival.connect(whitelistUser).whitelistMint(1,
             merkleTree.getHexProof(keccak256(await whitelistUser.getAddress())),
             {value: web3.utils.toWei('0.1', 'ether')}
-        )).to.be.revertedWith("Address already claimed!");
+        )).to.be.revertedWith("Mint over max whitelist mint amount");
 
         const supply = await toonSurvival.totalSupply();
         const walletOfOwner = await toonSurvival.walletOfOwner(whitelistUser.getAddress());
 
-        expect(supply.toNumber()).to.equal(1);
-        expect(walletOfOwner.length).to.equal(1);
+        expect(supply.toNumber()).to.equal(2);
+        expect(walletOfOwner.length).to.equal(2);
     });
 
     it('should have token when mint on public sale success', async () => {
