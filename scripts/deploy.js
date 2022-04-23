@@ -1,5 +1,4 @@
 const hre = require("hardhat");
-require('dotenv').config();
 const ContractArguments = require('../config/ContractArguments');
 
 async function main() {

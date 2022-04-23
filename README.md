@@ -8,4 +8,4 @@
 - Reveal or hide metadata URI
 
 ## Contracts
-Rinkeby: [0xe763074daa5a1EFdE2033422F8265009B47DA053](https://rinkeby.etherscan.io/address/0xe763074daa5a1EFdE2033422F8265009B47DA053)
+Rinkeby: [0x306260c940e8CcA5CeD2bea3052A9eA52ADEeaf1](https://rinkeby.etherscan.io/address/0x306260c940e8CcA5CeD2bea3052A9eA52ADEeaf1)
