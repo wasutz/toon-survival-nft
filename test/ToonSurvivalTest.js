@@ -20,7 +20,8 @@ describe("ToonSurvival", () => {
     const stages = {
         Paused: 0,
         Presale: 1,
-        PublicSale: 2
+        PublicSale: 2,
+        DutchAuction: 3
     }
 
     beforeEach(async () => {
@@ -187,5 +188,82 @@ describe("ToonSurvival", () => {
         const tokenUri = await toonSurvival.tokenURI(1);
 
         expect(tokenUri).to.equal(baseUri + "1");
+    });
+
+    it('should dutch auction success when price still not drop', async () => {
+        const currentEpochTime = Math.floor(new Date() / 1000);
+
+        await toonSurvival.setStage(stages.DutchAuction);
+        await toonSurvival.setDutchAuctionStartTime(currentEpochTime);
+
+        const price = ethers.utils.formatEther(await toonSurvival.dutchAuctionPrice());
+
+        expect(price).to.equal(ethers.utils.formatEther(await toonSurvival.auctionStartPrice()));
+
+        await toonSurvival.connect(user).dutchAuctionMint(1, {
+            value: web3.utils.toWei(price, 'ether')
+        });
+
+        const supply = await toonSurvival.totalSupply();
+        const walletOfOwner = await toonSurvival.walletOfOwner(user.getAddress());
+
+        expect(supply.toNumber()).to.equal(1);
+        expect(walletOfOwner.length).to.equal(1);
+    });
+
+    it('should dutch auction mint success with correct price when the price drop 2 steps', async () => {
+        const dropSteps = 2;
+        const auctionDropInterval = await toonSurvival.auctionDropInterval();
+        const dateTwoDropInterval = new Date();
+        dateTwoDropInterval.setHours(dateTwoDropInterval.getHours() - (auctionDropInterval * dropSteps / 3600));
+
+        const currentEpochTime = Math.floor(dateTwoDropInterval / 1000);
+
+        await toonSurvival.setStage(stages.DutchAuction);
+        await toonSurvival.setDutchAuctionStartTime(currentEpochTime);
+
+        const price = ethers.utils.formatEther(await toonSurvival.dutchAuctionPrice());
+
+        const startPrice = ethers.utils.formatEther(await toonSurvival.auctionStartPrice());
+        const dropPrice = ethers.utils.formatEther(await toonSurvival.auctionDropPerStep());
+
+        expect(price).to.equal(String(startPrice - (dropPrice * dropSteps)));
+
+        await toonSurvival.connect(user).dutchAuctionMint(1, {
+            value: web3.utils.toWei(price, 'ether')
+        });
+
+        const supply = await toonSurvival.totalSupply();
+        const walletOfOwner = await toonSurvival.walletOfOwner(user.getAddress());
+
+        expect(supply.toNumber()).to.equal(1);
+        expect(walletOfOwner.length).to.equal(1);
+    });
+
+    it('should dutch auction mint success with correct price when the price drop to min price', async () => {
+        const auctionTimeLength = await toonSurvival.auctionTimeLength();
+        const auctionDropInterval = await toonSurvival.auctionDropInterval();
+        const dropSteps = auctionTimeLength / auctionDropInterval;
+        const dateTwoDropInterval = new Date();
+        dateTwoDropInterval.setHours(dateTwoDropInterval.getHours() - (auctionDropInterval * dropSteps / 3600));
+
+        const currentEpochTime = Math.floor(dateTwoDropInterval / 1000);
+
+        await toonSurvival.setStage(stages.DutchAuction);
+        await toonSurvival.setDutchAuctionStartTime(currentEpochTime);
+
+        const price = ethers.utils.formatEther(await toonSurvival.dutchAuctionPrice());
+
+        expect(price).to.equal( ethers.utils.formatEther(await toonSurvival.auctionEndPrice()));
+
+        await toonSurvival.connect(user).dutchAuctionMint(1, {
+            value: web3.utils.toWei(price, 'ether')
+        });
+
+        const supply = await toonSurvival.totalSupply();
+        const walletOfOwner = await toonSurvival.walletOfOwner(user.getAddress());
+
+        expect(supply.toNumber()).to.equal(1);
+        expect(walletOfOwner.length).to.equal(1);
     });
 });

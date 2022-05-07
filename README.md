@@ -6,6 +6,7 @@
 - Whitelist support using Merkle tree
 - Can set max mint amount per transaction and per address
 - Reveal or hide metadata URI
+- Dutch Auction
 
 ## Contracts
-Rinkeby: [0x306260c940e8CcA5CeD2bea3052A9eA52ADEeaf1](https://rinkeby.etherscan.io/address/0x306260c940e8CcA5CeD2bea3052A9eA52ADEeaf1)
+Rinkeby: [0xC2B8a4E963E2c1A640102d7F83145E61a6956c47](https://rinkeby.etherscan.io/address/0xC2B8a4E963E2c1A640102d7F83145E61a6956c47)

@@ -12,7 +12,8 @@ contract ToonSurvival is ERC721A, Ownable, ReentrancyGuard {
   enum Stages {
     Paused,
     Presale,
-    PublicSale
+    PublicSale,
+    DutchAuction
   }
 
   string baseURI;
@@ -24,9 +25,18 @@ contract ToonSurvival is ERC721A, Ownable, ReentrancyGuard {
   bool public revealed = false;
   Stages public stage = Stages.Paused;
 
+  // Whitelist
   bytes32 public merkleRoot;
   uint256 public maxWhitelistMintAmount = 1;
   mapping(address => uint256) public whitelistClaimed;
+
+  // Dutch auction
+  uint256 public dutchAuctionStartTime;
+  uint256 public constant auctionStartPrice = 0.5 ether;
+  uint256 public constant auctionEndPrice = 0.1 ether;
+  uint256 public constant auctionTimeLength = 180 minutes;
+  uint256 public constant auctionDropInterval = 45 minutes;
+  uint256 public constant auctionDropPerStep = (auctionStartPrice - auctionEndPrice) / (auctionTimeLength / auctionDropInterval);
 
   constructor(
     string memory _tokenName,
@@ -74,6 +84,29 @@ contract ToonSurvival is ERC721A, Ownable, ReentrancyGuard {
 
   function mintForAddress(uint256 _mintAmount, address _receiver) public mintCompliance(_mintAmount) onlyOwner {
     _safeMint(_receiver, _mintAmount);
+  }
+
+  function dutchAuctionMint(uint256 _mintAmount) external payable mintCompliance(_mintAmount) {
+    require(stage == Stages.DutchAuction, "The contract does not in DutchAuction stage");
+    require(block.timestamp >= dutchAuctionStartTime, "Auction does not start");
+    require(msg.value >= dutchAuctionPrice() * _mintAmount, 'Insufficient funds!');
+
+    _safeMint(msg.sender, _mintAmount);
+  }
+
+  function dutchAuctionPrice() public view returns (uint256) {
+      uint256 timestamp = block.timestamp;
+
+      if (timestamp < dutchAuctionStartTime) {
+        return auctionStartPrice;
+      }
+
+      if (timestamp - dutchAuctionStartTime >= auctionTimeLength) {
+        return auctionEndPrice;
+      }
+
+      uint256 steps = (timestamp - dutchAuctionStartTime) / auctionDropInterval;
+      return auctionStartPrice - (steps * auctionDropPerStep);
   }
 
   function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
@@ -144,6 +177,10 @@ contract ToonSurvival is ERC721A, Ownable, ReentrancyGuard {
 
   function setMaxWhitelistMintAmount(uint256 _maxWhitelistMintAmount) public onlyOwner {
     maxWhitelistMintAmount = _maxWhitelistMintAmount;
+  }
+
+  function setDutchAuctionStartTime(uint256 startTime) public onlyOwner {
+      dutchAuctionStartTime = startTime;
   }
 
   function withdraw() public payable onlyOwner nonReentrant {
