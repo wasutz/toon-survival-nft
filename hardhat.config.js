@@ -8,7 +8,7 @@ const {MerkleTree} = require('merkletreejs');
 const CollectionConfig = require('./config/CollectionConfig');
 const mnemonic = process.env.MNEMONIC;
 const etherscanApiKey = process.env.ETHERSCAN_API_KEY;
-const rinkebyNode = process.env.RINKEBY_NODE;
+const goerliNode = process.env.GOERLI_NODE;
 const mainnetNode = process.env.MAINNET_NODE;
 
 task('accounts', 'Prints the list of accounts', async (taskArgs, hre) => {
@@ -54,8 +54,8 @@ module.exports = {
     },
   },
   networks: {
-    rinkeby: {
-      url: rinkebyNode,
+    goerli: {
+      url: goerliNode,
       accounts: [mnemonic]
     },
     mainnet: {
@@ -65,7 +65,7 @@ module.exports = {
   },
   etherscan: {
     apiKey: {
-      rinkeby: etherscanApiKey,
+      goerli: etherscanApiKey,
       mainnet: etherscanApiKey,
     },
   }

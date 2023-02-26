@@ -21,7 +21,8 @@
   "scripts": {
     "compile": "npx hardhat compile --force",
     "test": "npx hardhat test",
-    "deploy:rinkeby": "npx hardhat run --network rinkeby scripts/deploy.js",
-    "verify:rinkeby": "npx hardhat verify --network rinkeby --constructor-args ./config/ContractArguments.js $ADDRESS"
+    "generate:merkle-root-hash": "npx hardhat generate-root-hash",
+    "deploy:goerli": "npx hardhat run --network goerli scripts/deploy.js",
+    "verify:goerli": "npx hardhat verify --network goerli --constructor-args ./config/ContractArguments.js $ADDRESS"
   }
 }

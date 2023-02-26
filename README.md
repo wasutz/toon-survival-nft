@@ -8,5 +8,11 @@
 - Reveal or hide metadata URI
 - Dutch Auction
 
+## Set up
+- Deploy and verify contract
+- Configure the base URL
+- Set the Merkle root
+- Set the reveal (after the product is sold out)
+
 ## Contracts
-Rinkeby: [0xC2B8a4E963E2c1A640102d7F83145E61a6956c47](https://rinkeby.etherscan.io/address/0xC2B8a4E963E2c1A640102d7F83145E61a6956c47)
+Goerli: [0x838398E2c923780122A9a4e3875707A8F9647017](https://goerli.etherscan.io/address/0x838398e2c923780122a9a4e3875707a8f9647017)
